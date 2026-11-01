@@ -13,7 +13,7 @@ import streamlit as st
 from openai import OpenAI
 
 from lessons import BASE_URL, STAGES, expanded_modules
-from beginner_lab import show_beginner_lab
+from course_path import show_course_path
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -210,7 +210,7 @@ st.markdown(f'<div class="stage">{module["stage"]}</div><div class="lesson-title
 starter_tab, learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["🚀 Start Here","📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
 
 with starter_tab:
-    show_beginner_lab()
+    show_course_path()
 
 with learn_tab:
     st.markdown("### 1. Understand the concept")
