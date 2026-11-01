@@ -65,6 +65,67 @@ def show_beginner_lab():
             "**Response:** status code, headers, and often JSON.  \n"
             "**QA's job:** compare actual response with documented expected behavior, including errors."
         )
+    st.subheader("1A · What exactly is an API server?")
+    st.markdown("""
+An **API (Application Programming Interface)** is a set of rules and endpoints that let software systems communicate.
+An **API server** is a running application that listens for HTTP requests, decides what the caller is allowed to do,
+runs business rules, may read or write a database, and sends an HTTP response.
+
+**Important distinction:** the API is the *interface/contract*; the API server is the *software handling the calls*.
+A server can be a cloud service, a container, or a program running on a laptop. The API server is not necessarily the database.
+""")
+    with st.expander("Example: what happens when you click View Product?", expanded=True):
+        st.markdown("""
+1. **User interface:** You click a product in the shopping app.
+2. **Client:** The browser/mobile app sends `GET https://dummyjson.com/products/1`.
+3. **Internet:** DNS resolves the hostname; HTTPS protects data in transit.
+4. **API server:** A web server receives the request and routes `GET /products/1` to the appropriate handler.
+5. **Business logic:** The handler validates inputs and checks any required permissions.
+6. **Data layer:** It obtains product information from storage or another service.
+7. **Response:** The server returns a status (such as 200), headers, and a JSON body.
+8. **UI:** The app reads the JSON and displays a product title and price.
+9. **QA:** We verify status, JSON schema/values, error behavior, permissions, and response time.
+""")
+    st.subheader("1B · Explore the HTTP request and response")
+    st.code("GET /products/1 HTTP/1.1\\nHost: dummyjson.com\\nAccept: application/json", language="http")
+    st.markdown("**Request breakdown:** `GET` is the method; `/products/1` is the endpoint path; `Host` identifies the server; `Accept` requests JSON.")
+    st.code('HTTP/1.1 200 OK\\nContent-Type: application/json\\n\\n{"id":1,"title":"Example product"}', language="http")
+    st.caption("The response above is illustrative, not the exact live DummyJSON product.")
+    st.markdown("**Response breakdown:** `200` is the HTTP status; `Content-Type` describes the response format; the JSON body carries data.")
+    st.subheader("1C · Who does what? Client vs API server vs database")
+    st.table([
+        {"Component": "Client (browser/mobile app)", "Responsibility": "Displays UI and sends HTTP requests", "QA example": "Does clicking View Product send the right request?"},
+        {"Component": "API server", "Responsibility": "Routes requests, validates input, enforces permissions, returns responses", "QA example": "Is an invalid ID rejected with the expected error?"},
+        {"Component": "Database / data service", "Responsibility": "Stores or supplies product information", "QA example": "Is the correct product returned without exposing private fields?"},
+        {"Component": "QA automation", "Responsibility": "Sends requests and asserts expected behavior", "QA example": "Does status equal 200 and JSON id equal 1?"},
+    ])
+    st.subheader("1D · Choose an API method to see what changes")
+    method_explanations = {
+        "GET": ("Read an existing product", "GET /products/1", "Usually no request body; expect data or a documented error."),
+        "POST": ("Ask server to create a product", "POST /products/add", 'JSON body: {"title":"QA Demo"}; validate returned fields and creation status.'),
+        "PUT": ("Replace or update a resource according to the API contract", "PUT /products/1", "Send a JSON body; check which fields change."),
+        "PATCH": ("Partially update a resource", "PATCH /products/1", "Send only the field to change; check unrelated fields remain as expected."),
+        "DELETE": ("Ask server to delete a resource", "DELETE /products/1", "Verify documented deletion response and permissions."),
+    }
+    chosen_method = st.selectbox("HTTP method", list(method_explanations), key="starter_method_explainer")
+    purpose, example, qa_note = method_explanations[chosen_method]
+    st.markdown(f"**Purpose:** {purpose}")
+    st.code(example, language="http")
+    st.info(f"**QA validation:** {qa_note}")
+    st.caption("DummyJSON write operations are simulated and do not persist changes.")
+    st.subheader("1E · What can go wrong? Think like a QA engineer")
+    st.markdown("""
+- **200 OK:** Request succeeded; still check the JSON is correct.
+- **201 Created:** Resource created, if the API contract specifies this.
+- **400 Bad Request:** Invalid request; check the error message and validation rules.
+- **401 Unauthorized:** Authentication is missing or invalid.
+- **403 Forbidden:** The caller is authenticated but lacks permission.
+- **404 Not Found:** The resource does not exist.
+- **500 Internal Server Error:** Server failed; log a defect if unexpected.
+
+**Practical QA rule:** An expected 404 can be a **passing negative test**.
+The correct expectation comes from the API specification, not from assuming every API must return 200.
+""")
     st.subheader("2 · Choose a scenario and write your test case")
     scenario = st.selectbox("Business situation", list(SCENARIOS), key="starter_scenario")
     s = SCENARIOS[scenario]
