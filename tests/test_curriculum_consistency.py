@@ -100,3 +100,34 @@ def test_advanced_project_cannot_be_marked_pass_without_full_review():
         module = next(m for m in MODULES if m["id"] == mid)
         result = review_automation(module, "import requests\nassert True", True, "Static")
         assert result["result"] != "PASS"
+
+
+def test_every_api_automation_module_has_manual_to_automation_case():
+    from manual_to_automation import CASES
+    ids = {m["id"] for m in MODULES if m["stage"] == "API Automation"}
+    assert set(CASES) == ids
+    for mid, (title, method, path, body, expected, checks) in CASES.items():
+        assert title and method in {"GET", "POST", "PUT", "PATCH", "DELETE"}
+        assert path.startswith("/")
+        assert isinstance(expected, int)
+        assert len(checks) >= 1
+        assert solution_for(mid).strip()
+
+
+def test_manual_automation_response_assertions():
+    from manual_to_automation import _evaluate
+    samples = [
+        ("17", 200, {"id": 1, "firstName": "Emily"}, {}, True),
+        ("17", 200, {"id": 2, "firstName": ""}, {}, False),
+        ("21", 201, {"id": 209, "firstName": "Alex", "age": 30}, {}, True),
+        ("21", 200, {"id": 209, "firstName": "Alex", "age": 30}, {}, False),
+        ("23", 200, {"id": 1, "isDeleted": True, "deletedOn": "2026-01-01"}, {}, True),
+        ("24", 200, {}, {"Content-Type": "application/json; charset=utf-8"}, True),
+        ("25", 200, {"limit": 5, "skip": 5, "users": [1, 2]}, {}, True),
+        ("27", 401, {"message": "Unauthorized"}, {}, True),
+        ("27", 200, {"id": 1}, {}, False),
+        ("28", 404, {"message": "User not found"}, {}, True),
+    ]
+    for mid, status, body, headers, expected_pass in samples:
+        result = _evaluate(mid, status, body, headers)
+        assert all(passed for _, passed in result) is expected_pass, (mid, result)
