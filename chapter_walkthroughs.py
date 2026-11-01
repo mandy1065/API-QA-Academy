@@ -172,7 +172,7 @@ DETAILS = {
 ["Define cases", "Add @pytest.mark.parametrize", "Use arguments in test", "Read separate results"],
 "IDs 1, 2, 3",
 "3 tests PASSED",
-["Each input independently checked"],
+["Each input independently checked", "Returned user ID matches each parameter", "Each case reports its own PASS or FAIL"],
 'import pytest\nimport requests\n@pytest.mark.parametrize("user_id", [1,2,3])\ndef test_user(user_id):\n    r = requests.get(f"https://dummyjson.com/users/{user_id}", timeout=10)\n    assert r.status_code == 200\n    assert r.json()["id"] == user_id'),
 "32": ("API client helpers send requests; test functions decide PASS/FAIL.",
 ["Define get_user helper", "Call helper from test", "Assert response", "Reuse helper in another test"],
