@@ -14,6 +14,7 @@ from openai import OpenAI
 
 from lessons import BASE_URL, STAGES, expanded_modules
 from course_path import show_course_path
+from api_foundations import show_foundations
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -192,6 +193,7 @@ with st.sidebar:
     st.session_state.student_name = st.text_input("Name", value=st.session_state.student_name)
     st.session_state.student_id = st.text_input("Student ID / Email", value=st.session_state.student_id)
     st.divider(); st.markdown("### 🧭 Learning Path")
+    st.caption("Select Module 01 → Learn for the complete API foundation with client/server diagrams, headers, JSON and examples. The 🚀 Start Here tab has the full three-stage guided course.")
     selected_stage = st.selectbox("Stage", STAGES)
     stage_modules = [m for m in MODULES if m["stage"] == selected_stage]
     labels = [f"{m['id']}. {m['title']} · {m['minutes']} min" for m in stage_modules]
@@ -213,6 +215,13 @@ with starter_tab:
     show_course_path()
 
 with learn_tab:
+    if module["stage"] == "API Foundations" and module["id"] == "01":
+        st.success("✨ Expanded interactive API foundations: client → API server → database, request/response, headers, body, JSON, and test examples.")
+        show_foundations()
+        st.divider()
+    elif module["stage"] == "API Foundations":
+        st.info("For the full interactive client/server diagrams and hands-on HTTP request builder, open Module 01 → Learn or the 🚀 Start Here tab.")
+    st.markdown("### Module-specific lesson")
     st.markdown("### 1. Understand the concept")
     st.markdown(f'<div class="card">{module["learn"]}</div>', unsafe_allow_html=True)
     st.markdown("### 2. Think about it this way")
