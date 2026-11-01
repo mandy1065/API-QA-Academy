@@ -89,7 +89,7 @@ DETAILS = {
 "GET /users/1",
 'HTTP 200 + JSON user object',
 ["Use timeout", "Check status", "Check firstName is present"],
-'import requests\nr = requests.get("https://dummyjson.com/users/1", timeout=10)\nassert r.status_code == 200\nassert "firstName" in r.json()'),
+'import requests\nr = requests.get("https://dummyjson.com/users/1", timeout=10)\nassert r.status_code == 200\nassert "firstName" in r.json()\nprint("Status:", r.status_code)\nprint("First name:", r.json()["firstName"])'),
 "18": ("Assertions replace a human reading the response.",
 ["Write expected result", "Call GET", "Read status and JSON", "Assert ID and type", "Run pytest"],
 "GET /users/2",
