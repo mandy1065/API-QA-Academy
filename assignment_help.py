@@ -1,5 +1,6 @@
 """Progressive assignment hints and reference solutions for automation lessons."""
 from chapter_walkthroughs import DETAILS
+from assignment_examples import EXAMPLES
 
 HINTS = {
 "17": ["Import requests and send GET /users/1 with timeout=10.", "Read response.status_code and response.json()[\'firstName\'].", "Use print() for both values. For example: print(\'Status:\', response.status_code)."],
@@ -28,16 +29,9 @@ def hints_for(module_id):
     return HINTS.get(module_id, ["Review the worked example.", "Translate each requirement into an assertion.", "Compare actual and expected results."])
 
 def solution_for(module_id):
-    if module_id == "17":
-        return """import requests
-
-response = requests.get("https://dummyjson.com/users/1", timeout=10)
-assert response.status_code == 200
-assert "firstName" in response.json()
-
-print("Status:", response.status_code)
-print("First name:", response.json()["firstName"])"""
-    return DETAILS[module_id][5] or "# Review the chapter example and implement the task."
+    if module_id in EXAMPLES:
+        return EXAMPLES[module_id]
+    return DETAILS[module_id][5] or "# Multi-file project: follow the local_automation README and submit your test report."
 
 
 def explanation_for(module_id):
