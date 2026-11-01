@@ -27,6 +27,16 @@ The app uses `https://dummyjson.com` as its classroom API. POST/PUT/PATCH/DELETE
 - Local fallback grading when no OpenAI key is configured
 - Module progress and downloadable JSON report
 
+## Start Here: three-stage beginner course
+
+The **🚀 Start Here** page now has three ordered interactive tabs:
+
+1. **API Foundations:** diagrams, HTTP request/response, URL, headers, body, JSON editor, status codes and request builder.
+2. **Manual API Testing:** requirement analysis, positive/negative test cases, real DummyJSON requests, expected-vs-actual checks and test-case export.
+3. **API Automation:** Python requests, pytest assertions, downloadable runnable tests, in-app controlled validation, VS Code setup and framework next steps.
+
+The new page is implemented in `course_path.py` and uses `api_foundations.py`. The original 36 modules remain in the other tabs.
+
 ## New: interactive beginner lab and local pytest automation
 
 Open the **🚀 Start Here** tab to see the client → API → server → data flow, choose positive/negative scenarios, execute live GET requests, compare actual vs expected, and download runnable pytest code.
