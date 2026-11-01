@@ -15,6 +15,7 @@ from openai import OpenAI
 from lessons import BASE_URL, STAGES, expanded_modules
 from course_path import show_course_path
 from chapter_content import show_chapter
+from chapter_walkthroughs import render_detail
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -218,6 +219,7 @@ with starter_tab:
 
 with learn_tab:
     show_chapter(module)
+    render_detail(module)
     st.divider()
     st.markdown("### Additional lesson notes")
     st.markdown(module["learn"])
