@@ -124,7 +124,12 @@ def run_student_code(code):
     out = io.StringIO()
     try:
         with contextlib.redirect_stdout(out):
-            exec(compile(code, "<student_code>", "exec"), {"__builtins__":builtins}, {})
+            namespace = {"__builtins__": builtins}
+            exec(compile(code, "<student_code>", "exec"), namespace, namespace)
+            for name, obj in list(namespace.items()):
+                if name.startswith("test_") and callable(obj):
+                    obj()
+                    print(f"PASS: {name}")
         text = out.getvalue().rstrip()
         return True, text[:8000] or "(Code ran successfully. No printed output.)"
     except Exception as exc:
@@ -268,12 +273,14 @@ with practice_tab:
                 st.success("✅ Good practice attempt. Now move to the assignment.")
     else:
         st.markdown("### Python API practice")
+        if module["stage"] == "Advanced Automation":
+            st.info("Run advanced pytest code in VS Code. In-app Run Practice is disabled because it cannot run pytest fixtures or decorators.")
         code_key = f"practice_code_{module['id']}"
         if code_key not in st.session_state:
             st.session_state[code_key] = sample_code(module)
         code = st.text_area("Edit the code", key=code_key, height=340)
         b1,b2 = st.columns(2)
-        if b1.button("▶ Run Practice", type="primary", use_container_width=True, key=f"run_practice_{module['id']}"):
+        if b1.button("▶ Run Practice", type="primary", use_container_width=True, key=f"run_practice_{module['id']}", disabled=module["stage"] == "Advanced Automation"):
             ok, output = run_student_code(code)
             st.session_state[f"practice_output_{module['id']}"] = output
             st.session_state[f"practice_ok_{module['id']}"] = ok
@@ -294,6 +301,8 @@ with assignment_tab:
     st.markdown("### Module Assignment")
     st.markdown(f'<div class="card"><b>Task</b><br>{module["assignment"]}</div>', unsafe_allow_html=True)
     if module["stage"] in {"API Automation","Advanced Automation"}:
+        if module["stage"] == "Advanced Automation":
+            st.warning("Advanced pytest assignments require VS Code and python -m pytest -v. In-app evaluation checks code structure only; it cannot verify a real pytest run.")
         akey = f"assignment_code_{module['id']}"
         if akey not in st.session_state:
             st.session_state[akey] = "# Write your solution here\nimport requests\n\n"
@@ -314,7 +323,7 @@ with assignment_tab:
             st.caption(explanation_for(module["id"]))
         submission = st.text_area("Your assignment code", key=akey, height=360)
         a1,a2 = st.columns(2)
-        if a1.button("▶ Run Assignment", type="primary", use_container_width=True, key=f"run_assignment_{module['id']}"):
+        if a1.button("▶ Run Assignment", type="primary", use_container_width=True, key=f"run_assignment_{module['id']}", disabled=module["stage"] == "Advanced Automation"):
             ok, output = run_student_code(submission)
             st.session_state[f"assignment_output_{module['id']}"] = output
             st.session_state[f"assignment_ok_{module['id']}"] = ok
@@ -334,7 +343,10 @@ with assignment_tab:
             if not st.session_state.student_name.strip():
                 st.error("Enter your name in the sidebar first.")
             else:
-                ok, current_output = run_student_code(submission)
+                if module["stage"] == "Advanced Automation":
+                    ok, current_output = True, "Static inspection only. Run this pytest project in VS Code."
+                else:
+                    ok, current_output = run_student_code(submission)
                 evaluation = review_automation(module, submission, ok, current_output)
                 st.session_state[f"assignment_output_{module['id']}"] = current_output
                 st.session_state[f"assignment_ok_{module['id']}"] = ok
