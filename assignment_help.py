@@ -2,7 +2,7 @@
 from chapter_walkthroughs import DETAILS
 
 HINTS = {
-"17": ["Import requests and use requests.get().", "Call /users/1 with timeout=10.", "Print response.status_code and response.json().get('firstName')."],
+"17": ["Import requests and send GET /users/1 with timeout=10.", "Read response.status_code and response.json()[\'firstName\'].", "Use print() for both values. For example: print(\'Status:\', response.status_code)."],
 "18": ["Define a test_ function.", "Use requests.get('/users/2') with the full URL.", "Assert status_code == 200 and response.json()['id'] == 2."],
 "19": ["Write one valid-ID and one missing-ID test.", "Use exact status assertions.", "An expected 404 counts as a passing negative test."],
 "20": ["Parse response.json() once into data.", "Check 'id' and 'title' keys.", "Use isinstance() to validate data types."],
@@ -28,7 +28,17 @@ def hints_for(module_id):
     return HINTS.get(module_id, ["Review the worked example.", "Translate each requirement into an assertion.", "Compare actual and expected results."])
 
 def solution_for(module_id):
+    if module_id == "17":
+        return """import requests
+
+response = requests.get("https://dummyjson.com/users/1", timeout=10)
+assert response.status_code == 200
+assert "firstName" in response.json()
+
+print("Status:", response.status_code)
+print("First name:", response.json()["firstName"])"""
     return DETAILS[module_id][5] or "# Review the chapter example and implement the task."
+
 
 def explanation_for(module_id):
     if module_id in {"35","36"}:
