@@ -3,6 +3,7 @@ import json
 import re
 import streamlit as st
 import requests
+from api_foundations import show_foundations
 
 BASE = "https://dummyjson.com"
 SCENARIOS = {
@@ -32,7 +33,9 @@ def build_pytest(path, status, field=None, expected=None):
 
 
 def show_beginner_lab():
-    st.header("🧭 Start Here: API to QA Automation")
+    show_foundations()
+    st.divider()
+    st.header("🧭 Next: API Server, Live Testing and Automation")
     st.info("Start with the picture, then make a test case, run it, and export the exact test for VS Code.")
     st.subheader("1 · What happens when two applications communicate?")
     st.markdown(
