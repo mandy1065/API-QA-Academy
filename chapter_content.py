@@ -15,8 +15,8 @@ FOUNDATION = {
 MANUAL = {
 "10": ("GET happy path", "Send GET /products/1, expect 200, check JSON id and required fields."),
 "11": ("POST request", "Send a JSON body to /users/add; validate returned fields and the API-documented status. DummyJSON does not persist writes."),
-"12": ("PUT and PATCH", "Send an update payload to /users/2; validate updated fields and identity. Compare partial versus full updates."),
-"13": ("DELETE", "Delete /users/1; check status and deletion flags. Do not assume a second read reflects a persisted deletion in DummyJSON."),
+"12": ("Manual PUT and PATCH", "Manually send PUT and PATCH to /users/2 with JSON bodies. Compare the returned ID, changed fields, status, and documented behavior. DummyJSON writes are simulated."),
+"13": ("Manual DELETE", "Manually send DELETE /users/1, record the HTTP status, verify id and isDeleted/deletedOn response fields, and note that DummyJSON does not persist the deletion."),
 "14": ("JSON response validation", "Inspect /posts/1; verify keys, values, nested data, required fields and types."),
 "15": ("Authentication testing", "Use sample login, inspect access token, test /auth/me with valid and invalid tokens."),
 "16": ("Test-case design", "Write test ID, preconditions, request, steps, expected response, actual response and PASS/FAIL."),
@@ -73,8 +73,8 @@ def chapter_quiz(module):
     other = {
         "10": ("For a GET happy-path test, what should QA validate?", ["Only response time", "Status and product data", "Only URL length"], 1),
         "11": ("What is sent in a JSON POST request?", ["A payload in the body", "Only a status code", "Only a response header"], 0),
-        "12": ("What is PATCH usually used for?", ["Partial update", "Retrieving all products", "Logging out"], 0),
-        "13": ("What should a DELETE test verify?", ["Documented status and deletion indicators", "Only page color", "Only request size"], 0),
+        "12": ("Which method usually changes only selected fields?", ["PATCH", "GET", "DELETE"], 0),
+        "13": ("What should a manual DELETE test verify?", ["Documented status and deletion indicators", "Only page color", "Only request size"], 0),
         "14": ("Which JSON check is useful?", ["Required field and data type", "Number of spaces", "URL font"], 0),
         "15": ("What should a protected endpoint reject?", ["Valid authorized token", "Missing or invalid token", "Valid JSON"], 1),
         "16": ("What belongs in a manual test case?", ["Only test title", "Steps and expected result", "Only screenshots"], 1),
