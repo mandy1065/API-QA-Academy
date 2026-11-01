@@ -70,9 +70,36 @@ def chapter_quiz(module):
             "09": ("What does authorization decide?", ["Which actions a caller may perform", "Which HTTP method exists", "Whether JSON uses braces"], 0),
         }
         return questions[mid]
-    if mid in MANUAL:
-        return ("What makes a manual API test pass?", ["The server always returns 200", "Actual behavior matches the expected contract", "The response is long"], 1)
-    return ("What makes an automated API test check correctness?", ["print(response)", "A comment", "assert expected == actual"], 2)
+    other = {
+        "10": ("For a GET happy-path test, what should QA validate?", ["Only response time", "Status and product data", "Only URL length"], 1),
+        "11": ("What is sent in a JSON POST request?", ["A payload in the body", "Only a status code", "Only a response header"], 0),
+        "12": ("What is PATCH usually used for?", ["Partial update", "Retrieving all products", "Logging out"], 0),
+        "13": ("What should a DELETE test verify?", ["Documented status and deletion indicators", "Only page color", "Only request size"], 0),
+        "14": ("Which JSON check is useful?", ["Required field and data type", "Number of spaces", "URL font"], 0),
+        "15": ("What should a protected endpoint reject?", ["Valid authorized token", "Missing or invalid token", "Valid JSON"], 1),
+        "16": ("What belongs in a manual test case?", ["Only test title", "Steps and expected result", "Only screenshots"], 1),
+        "17": ("Which Python library sends HTTP requests?", ["requests", "math", "random"], 0),
+        "18": ("Which statement validates an HTTP result?", ["print(response)", "assert response.status_code == 200", "pass"], 1),
+        "19": ("Which status assertion is best for a documented 404?", ["assert status == 404", "assert status == 200", "print(status)"], 0),
+        "20": ("How do you parse JSON with requests?", ["response.json()", "response.path()", "response.headers()"], 0),
+        "21": ("How do you send JSON with requests.post?", ["json=payload", "print=payload", "status=payload"], 0),
+        "22": ("Which Python call sends a PATCH?", ["requests.get", "requests.patch", "requests.options"], 1),
+        "23": ("What can DummyJSON DELETE return?", ["Deletion indicators", "A persistent deletion guarantee", "A Python fixture"], 0),
+        "24": ("Where do request headers go in requests.get?", ["headers={...}", "assert={...}", "pytest={...}"], 0),
+        "25": ("How should query parameters be passed?", ["params={...}", "body_status=200", "print(...)"], 0),
+        "26": ("What should you capture after successful login?", ["accessToken", "Server IP", "Screenshot only"], 0),
+        "27": ("What does Bearer authentication require?", ["Authorization header with token", "JSON string only", "A 404 response"], 0),
+        "28": ("When does a negative test pass?", ["When documented error matches actual", "Only on 200", "Whenever response is long"], 0),
+        "29": ("Which test function is discovered by pytest?", ["def test_get_user():", "def run_user():", "def helper():"] , 0),
+        "30": ("What is a pytest fixture?", ["Reusable setup", "HTTP status", "JSON key"], 0),
+        "31": ("What does parametrization enable?", ["One test with multiple inputs", "No assertions", "Only one request"], 0),
+        "32": ("What should reusable API client helpers handle?", ["Sending requests", "Choosing test PASS without assertions", "Changing production data always"], 0),
+        "33": ("Why specify timeout=10?", ["Avoid indefinitely waiting", "Force 200 status", "Remove headers"], 0),
+        "34": ("Where should reusable test data live?", ["Separate fixtures/data when useful", "In public secrets", "Only screenshots"], 0),
+        "35": ("What belongs in a maintainable test framework?", ["Clients, tests, fixtures and config", "One huge print statement", "Only screenshots"], 0),
+        "36": ("What does a final API suite need?", ["Positive/negative checks and reusable automation", "Only GET 200", "No assertions"], 0),
+    }
+    return other[mid]
 
 def show_chapter(module):
     title, explanation, example, task, takeaway = chapter_material(module)
