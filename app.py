@@ -14,7 +14,7 @@ from openai import OpenAI
 
 from lessons import BASE_URL, STAGES, expanded_modules
 from course_path import show_course_path
-from api_foundations import show_foundations
+from chapter_content import show_chapter
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -193,7 +193,7 @@ with st.sidebar:
     st.session_state.student_name = st.text_input("Name", value=st.session_state.student_name)
     st.session_state.student_id = st.text_input("Student ID / Email", value=st.session_state.student_id)
     st.divider(); st.markdown("### 🧭 Learning Path")
-    st.caption("Select Module 01 → Learn for the complete API foundation with client/server diagrams, headers, JSON and examples. The 🚀 Start Here tab has the full three-stage guided course.")
+    st.caption("Choose a chapter. Its Learn tab shows chapter-specific teaching, diagrams, examples and questions. The optional Start Here tab provides an overview.")
     selected_stage = st.selectbox("Stage", STAGES)
     stage_modules = [m for m in MODULES if m["stage"] == selected_stage]
     labels = [f"{m['id']}. {m['title']} · {m['minutes']} min" for m in stage_modules]
@@ -209,50 +209,25 @@ m3.metric("Estimated", f"{module['minutes']} min")
 m4.metric("Passed", sum(1 for v in st.session_state.completed.values() if v))
 st.markdown(f'<div class="stage">{module["stage"]}</div><div class="lesson-title">Module {module["id"]} — {module["title"]}</div><div class="subtle">Goal: {module["goal"]}</div>', unsafe_allow_html=True)
 
-starter_tab, learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["🚀 Start Here","📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
+starter_tab, learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["🗺️ Course Overview","📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
 
 with starter_tab:
-    show_course_path()
+    st.info("This is an optional overview of the full beginner path. To study the selected sidebar chapter, open 📘 Learn. Each chapter has its own explanation, diagram, example and quiz.")
+    with st.expander("Open the full foundations → manual → automation overview"):
+        show_course_path()
 
 with learn_tab:
-    if module["stage"] == "API Foundations" and module["id"] == "01":
-        st.success("✨ Expanded interactive API foundations: client → API server → database, request/response, headers, body, JSON, and test examples.")
-        show_foundations()
-        st.divider()
-    elif module["stage"] == "API Foundations":
-        st.info("For the full interactive client/server diagrams and hands-on HTTP request builder, open Module 01 → Learn or the 🚀 Start Here tab.")
-    st.markdown("### Module-specific lesson")
-    st.markdown("### 1. Understand the concept")
-    st.markdown(f'<div class="card">{module["learn"]}</div>', unsafe_allow_html=True)
-    st.markdown("### 2. Think about it this way")
-    st.markdown(f'<div class="mental">💡 {module["mental"]}</div>', unsafe_allow_html=True)
-    if module["stage"] == "API Foundations":
-        flow = "Client / Tester\n   ↓ request\nAPI / Server\n   ↓ response\nStatus + Headers + JSON Body"
-    elif module["stage"] == "Manual API Testing":
-        flow = "Requirement\n   ↓\nBuild request\n   ↓\nSend manually\n   ↓\nCompare EXPECTED vs ACTUAL\n   ↓\nPASS / FAIL / DEFECT"
-    else:
-        flow = "Manual test\n   ↓\nPython requests\n   ↓\nresponse.status_code / response.json()\n   ↓\nassert expected == actual\n   ↓\npytest result"
-    st.markdown("### 3. Workflow")
-    st.markdown(f'<div class="flow">{flow}</div>', unsafe_allow_html=True)
-    st.markdown("### 4. Real example")
-    st.markdown(f'<span class="method">{module["method"]}</span><b>{BASE_URL}{module["path"]}</b>', unsafe_allow_html=True)
-    if module["stage"] in {"API Automation","Advanced Automation"}:
+    show_chapter(module)
+    st.divider()
+    st.markdown("### Additional lesson notes")
+    st.markdown(module["learn"])
+    st.markdown(f"**Remember:** {module['mental']}")
+    st.markdown("### Try the chapter endpoint")
+    st.code(f"{module['method']} {BASE_URL}{module['path']}", language="http")
+    if module["stage"] in {"API Automation", "Advanced Automation"}:
+        st.markdown("### Python example")
         st.code(sample_code(module), language="python")
-    else:
-        st.code(f"{module['method']} {BASE_URL}{module['path']}", language="text")
-    with st.expander("Common beginner mistakes"):
-        st.write("⚠️ Checking only status code")
-        st.write("⚠️ Not writing an expected result")
-        st.write("⚠️ Testing only the happy path")
-    st.markdown("### 5. Quick knowledge check")
-    q, opts, answer = quiz_for(module)
-    choice = st.radio(q, opts, key=f"quiz_{module['id']}")
-    if st.button("Check Answer", key=f"check_quiz_{module['id']}"):
-        if choice == answer:
-            st.success("✅ Correct")
-            st.session_state.quiz_done[module["id"]] = True
-        else:
-            st.error("Review the concept and try again.")
+    st.markdown("Use the API Lab tab to send the request, Practice to try it, and Assignment to submit your work.")
 
 with lab_tab:
     st.markdown("### Live DummyJSON API Playground")
