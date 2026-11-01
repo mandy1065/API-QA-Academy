@@ -18,6 +18,7 @@ from chapter_content import show_chapter
 from chapter_walkthroughs import render_detail
 from assignment_help import hints_for, solution_for, explanation_for
 from assignment_review import review_automation
+from manual_to_automation import show_manual_to_automation
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -222,6 +223,8 @@ learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["📘 
 with learn_tab:
     show_chapter(module)
     render_detail(module)
+    if module["stage"] == "API Automation":
+        show_manual_to_automation(module, send_api)
     st.divider()
     st.markdown("### Additional lesson notes")
     st.markdown(module["learn"])
