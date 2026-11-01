@@ -13,6 +13,7 @@ import streamlit as st
 from openai import OpenAI
 
 from lessons import BASE_URL, STAGES, expanded_modules
+from beginner_lab import show_beginner_lab
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -206,7 +207,10 @@ m3.metric("Estimated", f"{module['minutes']} min")
 m4.metric("Passed", sum(1 for v in st.session_state.completed.values() if v))
 st.markdown(f'<div class="stage">{module["stage"]}</div><div class="lesson-title">Module {module["id"]} — {module["title"]}</div><div class="subtle">Goal: {module["goal"]}</div>', unsafe_allow_html=True)
 
-learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
+starter_tab, learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["🚀 Start Here","📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
+
+with starter_tab:
+    show_beginner_lab()
 
 with learn_tab:
     st.markdown("### 1. Understand the concept")

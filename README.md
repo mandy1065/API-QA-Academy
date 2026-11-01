@@ -27,6 +27,14 @@ The app uses `https://dummyjson.com` as its classroom API. POST/PUT/PATCH/DELETE
 - Local fallback grading when no OpenAI key is configured
 - Module progress and downloadable JSON report
 
+## New: interactive beginner lab and local pytest automation
+
+Open the **🚀 Start Here** tab to see the client → API → server → data flow, choose positive/negative scenarios, execute live GET requests, compare actual vs expected, and download runnable pytest code.
+
+To learn automation in VS Code without Streamlit, follow the complete [local automation guide](local_automation/README.md). It includes Windows installation, Python virtual environments, VS Code interpreter selection, sample tests, commands, debugging, and troubleshooting.
+
+The existing 36 modules remain available in the other tabs.
+
 ## Run locally
 
 ```bash
