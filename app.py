@@ -318,16 +318,27 @@ with assignment_tab:
             ok, output = run_student_code(submission)
             st.session_state[f"assignment_output_{module['id']}"] = output
             st.session_state[f"assignment_ok_{module['id']}"] = ok
+            st.session_state[f"assignment_run_source_{module['id']}"] = submission
         evaluate = a2.button("🤖 Evaluate Assignment", use_container_width=True, key=f"eval_{module['id']}")
         output = st.session_state.get(f"assignment_output_{module['id']}", "")
-        if output:
-            st.markdown(f'<div class="console">{output}</div>', unsafe_allow_html=True)
+        run_source = st.session_state.get(f"assignment_run_source_{module['id']}")
+        if output and run_source == submission:
+            if st.session_state.get(f"assignment_ok_{module['id']}"):
+                st.info("Execution: code ran without an exception. This does NOT mean the assignment passed. Select Evaluate Assignment to check the required tasks.")
+            else:
+                st.error("Execution failed. Fix the Python error below.")
+            st.code(output, language="text")
+        elif output and run_source != submission:
+            st.caption("Code changed since the last run. Run Assignment again to see current execution output.")
         if evaluate:
             if not st.session_state.student_name.strip():
                 st.error("Enter your name in the sidebar first.")
             else:
                 ok, current_output = run_student_code(submission)
                 evaluation = review_automation(module, submission, ok, current_output)
+                st.session_state[f"assignment_output_{module['id']}"] = current_output
+                st.session_state[f"assignment_ok_{module['id']}"] = ok
+                st.session_state[f"assignment_run_source_{module['id']}"] = submission
                 st.session_state.assignment_results[module["id"]] = {**evaluation,"module":module["title"],"stage":module["stage"],"submission":submission,"output":current_output,"evaluated_at":datetime.now().isoformat(timespec="seconds")}
                 st.session_state.completed[module["id"]] = evaluation["result"] == "PASS"
                 st.rerun()
@@ -345,11 +356,11 @@ with assignment_tab:
                     st.session_state.completed[module["id"]] = True
                 st.rerun()
     saved = st.session_state.assignment_results.get(module["id"])
-    if saved:
+    if saved and saved.get("submission") == submission:
         st.divider(); st.markdown("### Instructor Evaluation")
         x1,x2 = st.columns(2); x1.metric("Score", f"{saved['score']}%"); x2.metric("Result", saved["result"])
-        if saved.get("result") == "PASS": st.success("✅ PASS — automated checks met the module requirements.")
-        else: st.error("❌ FAIL — fix the issues below and evaluate again.")
+        if saved.get("result") == "PASS": st.success("✅ PASS — the submitted code met the assignment checks.")
+        else: st.error("❌ FAIL — the code may run, but it has not met all assignment requirements. Fix the issues below.")
         if saved.get("issues"):
             st.markdown("#### What failed, why, and how to fix it")
             for i, issue in enumerate(saved["issues"], 1):
