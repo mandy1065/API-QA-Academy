@@ -17,6 +17,7 @@ from course_path import show_course_path
 from chapter_content import show_chapter
 from chapter_walkthroughs import render_detail
 from assignment_help import hints_for, solution_for, explanation_for
+from assignment_review import review_automation
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -326,10 +327,9 @@ with assignment_tab:
                 st.error("Enter your name in the sidebar first.")
             else:
                 ok, current_output = run_student_code(submission)
-                evaluation = ai_grade(module, submission, current_output) if ok else {"score":20,"result":"KEEP PRACTICING","strengths":["You attempted the assignment."],"improvements":["Fix the code so it runs."],"feedback":current_output}
+                evaluation = review_automation(module, submission, ok, current_output)
                 st.session_state.assignment_results[module["id"]] = {**evaluation,"module":module["title"],"stage":module["stage"],"submission":submission,"output":current_output,"evaluated_at":datetime.now().isoformat(timespec="seconds")}
-                if evaluation["score"] >= PASS_SCORE:
-                    st.session_state.completed[module["id"]] = True
+                st.session_state.completed[module["id"]] = evaluation["result"] == "PASS"
                 st.rerun()
     else:
         submission = st.text_area("Your assignment response", height=320, key=f"assignment_text_{module['id']}", placeholder="Test cases, expected result, actual result, PASS/FAIL, defects or observations...")
@@ -348,8 +348,18 @@ with assignment_tab:
     if saved:
         st.divider(); st.markdown("### Instructor Evaluation")
         x1,x2 = st.columns(2); x1.metric("Score", f"{saved['score']}%"); x2.metric("Result", saved["result"])
-        if saved["score"] >= PASS_SCORE: st.success("✅ Module passed")
-        else: st.warning("Keep practicing and submit again.")
+        if saved.get("result") == "PASS": st.success("✅ PASS — automated checks met the module requirements.")
+        else: st.error("❌ FAIL — fix the issues below and evaluate again.")
+        if saved.get("issues"):
+            st.markdown("#### What failed, why, and how to fix it")
+            for i, issue in enumerate(saved["issues"], 1):
+                st.markdown(f"**{i}. {issue['title']}**")
+                st.write("**Why:** " + issue["why"])
+                st.write("**How to fix:** " + issue["fix"])
+            with st.expander("See reference code for comparison"):
+                st.code(saved.get("reference", ""), language="python")
+        if saved.get("grading_method"):
+            st.caption("Assessment: " + saved["grading_method"] + ". A PASS is a learning checkpoint, not full end-to-end validation.")
         y1,y2 = st.columns(2)
         with y1:
             st.markdown("**Strengths**")
