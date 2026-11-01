@@ -371,8 +371,12 @@ with assignment_tab:
     if saved and saved.get("submission") == submission:
         st.divider(); st.markdown("### Instructor Evaluation")
         x1,x2 = st.columns(2); x1.metric("Score", f"{saved['score']}%"); x2.metric("Result", saved["result"])
-        if saved.get("result") == "PASS": st.success("✅ PASS — the submitted code met the assignment checks.")
-        else: st.error("❌ FAIL — the code may run, but it has not met all assignment requirements. Fix the issues below.")
+        if saved.get("result") == "PASS":
+            st.success("✅ PASS — the submitted code met the assignment checks.")
+        elif saved.get("result") == "NEEDS LOCAL TEST":
+            st.warning("🧪 STATIC REVIEW PASSED — not yet a verified PASS. Run python -m pytest -v in VS Code and check the results.")
+        else:
+            st.error("❌ FAIL — the code may run, but it has not met all assignment requirements. Fix the issues below.")
         if saved.get("issues"):
             st.markdown("#### What failed, why, and how to fix it")
             for i, issue in enumerate(saved["issues"], 1):
