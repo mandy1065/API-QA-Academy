@@ -194,7 +194,7 @@ with st.sidebar:
     st.session_state.student_name = st.text_input("Name", value=st.session_state.student_name)
     st.session_state.student_id = st.text_input("Student ID / Email", value=st.session_state.student_id)
     st.divider(); st.markdown("### 🧭 Learning Path")
-    st.caption("Choose a chapter. Its Learn tab shows chapter-specific teaching, diagrams, examples and questions. The optional Start Here tab provides an overview.")
+    st.caption("Select a module: its lesson appears first in 📘 Learn This Chapter. The previous always-visible overview has been removed.")
     selected_stage = st.selectbox("Stage", STAGES)
     stage_modules = [m for m in MODULES if m["stage"] == selected_stage]
     labels = [f"{m['id']}. {m['title']} · {m['minutes']} min" for m in stage_modules]
@@ -210,12 +210,7 @@ m3.metric("Estimated", f"{module['minutes']} min")
 m4.metric("Passed", sum(1 for v in st.session_state.completed.values() if v))
 st.markdown(f'<div class="stage">{module["stage"]}</div><div class="lesson-title">Module {module["id"]} — {module["title"]}</div><div class="subtle">Goal: {module["goal"]}</div>', unsafe_allow_html=True)
 
-starter_tab, learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["🗺️ Course Overview","📘 Learn","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
-
-with starter_tab:
-    st.info("This is an optional overview of the full beginner path. To study the selected sidebar chapter, open 📘 Learn. Each chapter has its own explanation, diagram, example and quiz.")
-    with st.expander("Open the full foundations → manual → automation overview"):
-        show_course_path()
+learn_tab, lab_tab, practice_tab, assignment_tab, progress_tab = st.tabs(["📘 Learn This Chapter","🌐 API Lab","🧪 Practice","📝 Assignment","📊 Progress"])
 
 with learn_tab:
     show_chapter(module)
