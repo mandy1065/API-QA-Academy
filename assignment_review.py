@@ -49,14 +49,14 @@ def review_automation(module, submission, runtime_ok, runtime_output):
     else:
         strengths.append("An API request call is present.")
 
-    if not asserts:
+    if not asserts and mid != "17":
         issues.append(_issue("Missing assertions", "Printing a response does not prove that it is correct.",
                              "Add assert response.status_code == expected_status and assert a meaningful JSON value."))
-    else:
+    elif asserts:
         strengths.append("At least one Python assert statement is present.")
 
     status_check = any("status_code" in ast.unparse(a.test) for a in asserts)
-    if mid not in {"30", "32", "35", "36"} and not status_check:
+    if mid not in {"17", "30", "32", "35", "36"} and not status_check:
         issues.append(_issue("No HTTP status assertion", "The test does not verify the expected status code.",
                              "For example: assert response.status_code == 200 (or 404 for an expected missing resource)."))
 
@@ -89,12 +89,24 @@ def review_automation(module, submission, runtime_ok, runtime_output):
     if mid == "27" and "authorization" not in source:
         issues.append(_issue("Authorization header missing", "The protected API needs a bearer token.",
                              "Send headers={'Authorization': f'Bearer {token}'}."))
-    if mid == "17" and not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "print" for n in calls):
-        issues.append(_issue("Requested output not printed", "Module 17 asks you to print status and firstName.",
-                             "Print response.status_code and response.json().get('firstName')."))
-    if mid == "17" and "firstname" not in source:
-        issues.append(_issue("firstName is not inspected", "The assignment asks for the user's firstName.",
-                             "Use response.json().get('firstName') after the request."))
+    if mid == "17":
+        prints = [n for n in calls if isinstance(n.func, ast.Name) and n.func.id == "print"]
+        printed_expressions = " ".join(ast.unparse(n) for n in prints).lower()
+        if not prints:
+            issues.append(_issue("Missing print statements",
+                                 "This first Python requests assignment explicitly asks you to print two results.",
+                                 "Add print('Status:', response.status_code) and print('First name:', response.json()['firstName'])."))
+        else:
+            if "status_code" not in printed_expressions:
+                issues.append(_issue("HTTP status is not printed",
+                                     "The task asks for the HTTP status to be visible in the output.",
+                                     "Add print('Status:', response.status_code)."))
+            if "firstname" not in printed_expressions:
+                issues.append(_issue("firstName is not printed",
+                                     "The task asks for the user's firstName to be visible in the output.",
+                                     "Add print('First name:', response.json()['firstName'])."))
+        if not issues:
+            strengths.append("Both required values are printed.")
     if mid in {"35", "36"}:
         issues.append(_issue("Project requires instructor review",
                              "A single code snippet cannot establish that a multi-file framework and full test suite work.",
