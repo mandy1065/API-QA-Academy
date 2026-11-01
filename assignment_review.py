@@ -107,6 +107,43 @@ def review_automation(module, submission, runtime_ok, runtime_output):
                                      "Add print('First name:', response.json()['firstName'])."))
         if not issues:
             strengths.append("Both required values are printed.")
+    # Module-specific checks must match the assignment, not just generic keywords.
+    expected_assertions = {"18": 4, "20": 5}
+    if mid in expected_assertions and len(asserts) < expected_assertions[mid]:
+        issues.append(_issue("Not enough checks for this assignment",
+                             f"Module {mid} asks for at least {expected_assertions[mid]} assertions; found {len(asserts)}.",
+                             f"Add meaningful status, field, value and type checks until you have at least {expected_assertions[mid]}."))
+    expected_tests = {"19": 2, "27": 2, "28": 3, "29": 3, "30": 2, "32": 2}
+    if mid in expected_tests:
+        test_count = sum(f.startswith("test_") for f in funcs)
+        if test_count < expected_tests[mid]:
+            issues.append(_issue("Missing required test scenarios",
+                                 f"Expected at least {expected_tests[mid]} test functions; found {test_count}.",
+                                 "Write a separate test_ function for each positive, negative or boundary scenario."))
+    if mid == "23" and "isdeleted" not in source:
+        issues.append(_issue("Missing deletion indicator validation",
+                             "DELETE response needs more than HTTP status.",
+                             "Assert response.json()['isDeleted'] is True."))
+    if mid == "24" and "content-type" not in source:
+        issues.append(_issue("Missing Content-Type validation",
+                             "This chapter is about response headers.",
+                             "Assert 'application/json' in response.headers.get('Content-Type', '')."))
+    if mid == "26" and "accesstoken" not in source:
+        issues.append(_issue("Access token not validated",
+                             "Successful login should return an accessToken.",
+                             "Assert response.json().get('accessToken')."))
+    if mid == "27" and "auth/me" not in source:
+        issues.append(_issue("Protected endpoint missing",
+                             "This assignment must call /auth/me with the bearer token.",
+                             "Call requests.get('https://dummyjson.com/auth/me', headers=..., timeout=10)."))
+    if mid == "30" and sum(f.startswith("test_") for f in funcs) < 2:
+        issues.append(_issue("Fixture not used by two tests",
+                             "The assignment asks for a fixture reused across two tests.",
+                             "Create test_user(base_url) and test_product(base_url)."))
+    if mid == "34" and "fixture" not in attrs:
+        issues.append(_issue("Reusable test data fixture missing",
+                             "The assignment asks for reusable payloads.",
+                             "Define a @pytest.fixture returning a sample payload and use it in tests."))
     if mid in {"35", "36"}:
         issues.append(_issue("Project requires instructor review",
                              "A single code snippet cannot establish that a multi-file framework and full test suite work.",
@@ -115,15 +152,16 @@ def review_automation(module, submission, runtime_ok, runtime_output):
 
 
 def _result(module, issues, strengths, output):
-    passed = not issues
+    advanced = module["stage"] == "Advanced Automation"
+    passed = not issues and not advanced
+    result = "NEEDS LOCAL TEST" if advanced and not issues else ("PASS" if passed else "FAIL")
     return {
         "score": 100 if passed else max(0, 70 - 10 * len(issues)),
-        "result": "PASS" if passed else "FAIL",
+        "result": result,
         "strengths": strengths or ["You submitted an attempt."],
         "improvements": [f"{i['title']}: {i['fix']}" for i in issues],
         "issues": issues,
-        "feedback": ("All automated checks passed. This is not proof of full API correctness; review expected values and run pytest locally."
-                     if passed else "Review the issues below, apply the suggested fixes, and evaluate again."),
+        "feedback": ("Code structure checks passed. Run python -m pytest -v in VS Code and inspect the actual test report before considering the advanced assignment complete." if result == "NEEDS LOCAL TEST" else ("The assignment checks passed; verify behavior in your local pytest suite." if passed else "Review the issues below, apply the suggested fixes, and evaluate again.")),
         "reference": solution_for(module["id"]),
         "grading_method": "Static checks + existing execution runner",
     }
