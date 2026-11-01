@@ -11,7 +11,7 @@ If you have Git installed:
 git clone https://github.com/mandy1065/API-QA-Academy.git
 cd API-QA-Academy
 ```
-For this new feature before merge, switch to `feature/interactive-api-qa-beginner-lab` with `git checkout feature/interactive-api-qa-beginner-lab`. Alternatively, download that branch as ZIP from GitHub and extract it. Open the folder in VS Code using **File → Open Folder**.
+All course changes are on the default `main` branch. Alternatively, download the repository ZIP from GitHub and extract it. Open the folder in VS Code using **File → Open Folder**.
 
 ## 3. Set up the automation environment
 ```powershell
