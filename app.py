@@ -16,6 +16,7 @@ from lessons import BASE_URL, STAGES, expanded_modules
 from course_path import show_course_path
 from chapter_content import show_chapter
 from chapter_walkthroughs import render_detail
+from assignment_help import hints_for, solution_for, explanation_for
 
 st.set_page_config(page_title="API QA Academy", page_icon="🔌", layout="wide")
 MODEL = st.secrets.get("OPENAI_MODEL", "gpt-5.4-nano")
@@ -295,6 +296,21 @@ with assignment_tab:
         akey = f"assignment_code_{module['id']}"
         if akey not in st.session_state:
             st.session_state[akey] = "# Write your solution here\nimport requests\n\n"
+        with st.expander("💡 Need a hint? Reveal one step at a time", expanded=False):
+            hint_key = f"assignment_hint_level_{module['id']}"
+            if hint_key not in st.session_state:
+                st.session_state[hint_key] = 0
+            hints = hints_for(module["id"])
+            if st.button("Show next hint", key=f"next_hint_{module['id']}", disabled=st.session_state[hint_key] >= len(hints)):
+                st.session_state[hint_key] = min(len(hints), st.session_state[hint_key] + 1)
+            for hint in hints[:st.session_state[hint_key]]:
+                st.info(hint)
+            if st.session_state[hint_key] >= len(hints):
+                st.caption("All hints revealed. Try writing your code before opening the solution.")
+        with st.expander("👀 See reference solution (after you try)", expanded=False):
+            st.warning("Learning tip: attempt the assignment first, then compare your approach with this reference.")
+            st.code(solution_for(module["id"]), language="python")
+            st.caption(explanation_for(module["id"]))
         submission = st.text_area("Your assignment code", key=akey, height=360)
         a1,a2 = st.columns(2)
         if a1.button("▶ Run Assignment", type="primary", use_container_width=True, key=f"run_assignment_{module['id']}"):
